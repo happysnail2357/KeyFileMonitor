@@ -52,7 +52,7 @@ def open_file(label_var):
     """Button callback to retrieve a file name from the user."""
 
     filename = filedialog.askopenfilename(
-        title="Select a distribituion set...",
+        title="Open a Distribituion Key File...",
         filetypes=[("All files", "*.*")]
     )
 

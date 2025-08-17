@@ -21,7 +21,7 @@ class App:
     """Everything is handled from this class."""
 
     KEY_LOADER_TITLE = 'Key Loader R8B'
-    OPEN_KEY_FILE_DIALOG_TITLE = 'Select a distribituion set...'
+    OPEN_KEY_FILE_DIALOG_TITLE = 'Open a Distribituion Key File...'
 
     def __init__(self):
         """Configure the components of the application."""
