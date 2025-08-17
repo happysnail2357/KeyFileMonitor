@@ -15,89 +15,155 @@ class KeyMonitorBanner:
         """
         Contruct a window.
 
-        Arguments:
-        attach_to <int>: handle to the window this window will "stick" to
-                         (default None).
+        Args:
+            attach_to (int): handle to the window this window will "stick" to
+                             (default None).
         """
 
-        self.__attached_hwnd = attach_to
-        self.__root = tk.Tk()
+        self.root = tk.Tk()
+        self.root.title("Key File Monitor")
 
-        self.__root.title("Key File Monitor")
-
-        # Size and position
-        self.__init_geometry = True
-        geometry_str = self.__calc_geometry()
-        self.__root.geometry(geometry_str)
-        self.__root.resizable(False, True)
+        # This will update size and position
+        self._update_window_handle(attach_to)
 
         # UI variables
-        self.__key_file = tk.StringVar(value="Keyfile.bin")
+        self._key_filename = tk.StringVar(value="")
 
         # Build the UI
-        self.__build_UI()
-
+        self._build_UI()
 
 
     def show(self):
         """
         Show and run the window.
 
-        Note: Calling this method will block for the duration of window.
+        This method will not return until after the window is closed. Other
+        tasks must be run in a background thread.
+
+        Returns:
+            None.
         """
 
-        self.__root.mainloop()
+        if self._attached_hwnd != 0:
+            win32gui.SetForegroundWindow(self._attached_hwnd)
+
+        self.root.mainloop()
 
 
-    def __calc_geometry(self) -> str:
+    def close(self):
         """
-        Calculate the size and position based on the "parent" window.
+        Close the window.
 
-        Returns: <str>
+        Returns:
+            None.
         """
 
-        if self.__attached_hwnd != 0:
+        self.root.after(0, lambda: self.root.destroy())
 
-            window_rect = win32gui.GetWindowRect(self.__attached_hwnd)
 
-            left, top, right, bottom = window_rect
-            width = right - left
+    def attach_to_window(self, window_handle: int):
+        """
+        Set the window to which this window will "stick" to.
 
-            if self.__init_geometry:
-                client_rect = win32gui.GetClientRect(self.__attached_hwnd)
-                left_top = win32gui.ClientToScreen(self.__attached_hwnd, (0, 0))
-                right_bottom = win32gui.ClientToScreen(self.__attached_hwnd, (client_rect[2], client_rect[3]))
+        Args:
+            window_handle (int): The handle to the desired window.
 
-                client_left, client_top = left_top
-                client_right, client_bottom = right_bottom
-                client_width = client_right - client_left
+        Returns:
+            None.
+        """
 
-                self.__width_diff = width - client_width
-                self.__top_diff = client_top - top
+        self.root.after(0, lambda: self._update_window_handle(window_handle))
 
-            calc_width = width - self.__width_diff
-            calc_top = max(top - self.__top_diff - 100, 0)
 
-            return f'{calc_width}x{100}+{left}+{calc_top}'
+    def set_file_name(self, filename: str):
+        """
+        Display the given key filename.
+
+        Args:
+            filename (str): The name of the key file.
+
+        Returns:
+            None.
+        """
+
+        self.root.after(0, lambda: self._key_filename.set(filename))
+
+
+    def _calc_geometry(self, init=False) -> str:
+        """
+        Calculate the size and position based on the sibling window.
+
+        Args:
+            init (bool): Make adjustments to the window size to account for
+                         window styling. Must be used the first time after
+                         attaching to a window (default False).
+
+        Returns:
+            str.
+        """
+
+        window_rect = win32gui.GetWindowRect(self._attached_hwnd)
+
+        left, top, right, bottom = window_rect
+        width = right - left
+
+        if init:
+            client_rect = win32gui.GetClientRect(self._attached_hwnd)
+            left_top = win32gui.ClientToScreen(self._attached_hwnd, (0, 0))
+            right_bottom = win32gui.ClientToScreen(self._attached_hwnd, (client_rect[2], client_rect[3]))
+
+            client_left, client_top = left_top
+            client_right, client_bottom = right_bottom
+            client_width = client_right - client_left
+
+            self._width_diff = width - client_width
+            self._top_diff = client_top - top
+
+            self._init_geometry = False
+
+        calc_width = width - self._width_diff
+        calc_top = max(top - self._top_diff - 100, 0)
+
+        return f'{calc_width}x{100}+{left}+{calc_top}'
+
+
+    def _update_window_handle(self, hwnd: int):
+        """
+        Change the handle of the sibling window.
+
+        Args:
+            hwnd (int): The window handle
+
+        Returns:
+            None.
+        """
+
+        self._attached_hwnd = hwnd
+
+        if hwnd != 0:
+            geometry_str = self._calc_geometry(init=True)
+            self.root.geometry(geometry_str)
+            self.root.resizable(False, True)
+            self.root.lift()
 
         else:
-            return '500x100'
+            self.root.geometry('500x100')
+            self.root.resizable(True, True)
 
 
-    def __build_UI(self):
+    def _build_UI(self):
         """Initialize the UI widgets for the window."""
 
-        row = tk.Frame(self.__root)
+        row = tk.Frame(self.root)
         row.pack(padx=(30, 0), fill='x', expand=True)
 
         label = tk.Label(row, text='Key File: ', font=("Arial", 12))
         file_label = tk.Label(
             row,
-            textvariable=self.__key_file,
+            textvariable=self._key_filename,
             font=("Arial", 14, "bold")
         )
 
         label.pack(side='left')
         file_label.pack(side='left')
-
 
