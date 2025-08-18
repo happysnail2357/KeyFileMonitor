@@ -29,8 +29,16 @@ class KeyMonitorBanner:
         # UI variables
         self._key_filename = tk.StringVar(value="")
 
+
+        # Colors
+        self.background_color = '#F0F0F0'
+        self.primary_key_color = '#00FF00'
+        self.secondary_key_color = '#FF0000'
+
         # Build the UI
         self._build_UI()
+
+        self._primary_key_filename = 'file.bin'
 
 
     def show(self):
@@ -44,8 +52,12 @@ class KeyMonitorBanner:
             None.
         """
 
-        if self._attached_hwnd != 0:
-            win32gui.SetForegroundWindow(self._attached_hwnd)
+        try:
+            if self._attached_hwnd != 0:
+                win32gui.SetForegroundWindow(self._attached_hwnd)
+
+        except:
+            pass
 
         self.root.mainloop()
 
@@ -86,7 +98,22 @@ class KeyMonitorBanner:
             None.
         """
 
-        self.root.after(0, lambda: self._key_filename.set(filename))
+        self.root.after(0, lambda: self._set_file_name(filename))
+
+
+    def _set_file_name(self, filename):
+        """Set the filename by calling this method in `root.after()`."""
+
+        self._key_filename.set(filename)
+
+        if filename == '':
+            self.outer_frame.configure(background=self.background_color)
+
+        elif filename == self._primary_key_filename:
+            self.outer_frame.configure(background=self.primary_key_color)
+
+        else:
+            self.outer_frame.configure(background=self.secondary_key_color)
 
 
     def _calc_geometry(self, init=False) -> str:
@@ -143,25 +170,29 @@ class KeyMonitorBanner:
         if hwnd != 0:
             geometry_str = self._calc_geometry(init=True)
             self.root.geometry(geometry_str)
-            self.root.resizable(False, True)
             self.root.lift()
 
         else:
             self.root.geometry('500x100')
-            self.root.resizable(True, True)
 
 
     def _build_UI(self):
         """Initialize the UI widgets for the window."""
 
-        row = tk.Frame(self.root)
-        row.pack(padx=(30, 0), fill='x', expand=True)
+        self.outer_frame = tk.Frame(self.root, background=self.background_color)
+        self.outer_frame.pack(fill="both", expand=True)
 
-        label = tk.Label(row, text='Key File: ', font=("Arial", 12))
+        inner_frame = tk.Frame(self.outer_frame, background=self.background_color)
+        inner_frame.pack(fill="both", expand=True, padx=15, pady=15)
+
+        row = tk.Frame(inner_frame, background=self.background_color)
+        row.pack(padx=(15, 0), fill='x', expand=True)
+
+        label = tk.Label(row, text='Key File: ', font=("Arial", 14))
         file_label = tk.Label(
             row,
             textvariable=self._key_filename,
-            font=("Arial", 14, "bold")
+            font=("Arial", 18, "bold")
         )
 
         label.pack(side='left')

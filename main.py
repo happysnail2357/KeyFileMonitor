@@ -28,7 +28,7 @@ class App:
 
         self.spy = WindowWatcher()
 
-        key_loader_hwnd = self.spy.look_for_window(
+        key_loader_hwnd = self.spy.target_window(
             self.KEY_LOADER_TITLE,
             self.on_keyloader_startup,
             self.on_keyloader_shutdown
@@ -36,10 +36,11 @@ class App:
 
         self.buffered_filename = "This is the selected key filename"
 
-        self.spy.look_for_window(
+        self.spy.target_dialog(
             self.OPEN_KEY_FILE_DIALOG_TITLE,
             self.on_select_file_startup,
-            self.on_select_file_shutdown
+            self.on_select_file_shutdown,
+            self.on_select_file_edit
         )
 
         self.window = KeyMonitorBanner(key_loader_hwnd)
@@ -67,7 +68,12 @@ class App:
     def on_select_file_startup(self, hwnd):
         """Monitor the selcted filename when the "Open" dialog appears."""
 
-        self.window.set_file_name('Selecting key file...')
+        pass
+
+    def on_select_file_edit(self, filename):
+        """Edit the buffered filename when the filename changes in the "Open" dialog."""
+
+        self.buffered_filename = filename
 
     def on_select_file_shutdown(self):
         """Apply the buffered filename when the "Open" dialog closes."""
