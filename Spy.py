@@ -229,7 +229,7 @@ class WindowWatcher:
         """Entry point of the dialog watcher thread."""
 
         self._dialog_thread_id = win32api.GetCurrentThreadId()
-
+        print('Poll dialog - Start')
         while self.running:
 
             hwnd = win32gui.FindWindow('#32770', self._dialog.title)
@@ -249,6 +249,8 @@ class WindowWatcher:
                 break
 
             sleep(0.1)
+
+        print('Poll dialog - Stop')
 
 
     def _start_dialog_thread(self):
