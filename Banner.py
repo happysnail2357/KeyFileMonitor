@@ -2,6 +2,9 @@
 
 import tkinter as tk
 import win32gui
+from pathlib import Path
+from datetime import datetime
+from Config import KeyInfo
 
 
 class KeyMonitorBanner:
@@ -27,18 +30,16 @@ class KeyMonitorBanner:
         self._update_window_handle(attach_to)
 
         # UI variables
-        self._key_filename = tk.StringVar(value="")
-
+        self._key_filename = tk.StringVar(value='')
+        self._timestamp = tk.StringVar(value='')
 
         # Colors
         self.background_color = '#F0F0F0'
-        self.primary_key_color = '#00FF00'
-        self.secondary_key_color = '#FF0000'
 
         # Build the UI
         self._build_UI()
 
-        self._primary_key_filename = 'file.bin'
+        self._key_info = KeyInfo()
 
 
     def show(self):
@@ -104,16 +105,18 @@ class KeyMonitorBanner:
     def _set_file_name(self, filename):
         """Set the filename by calling this method in `root.after()`."""
 
-        self._key_filename.set(filename)
+        file = Path(filename)
 
-        if filename == '':
-            self.outer_frame.configure(background=self.background_color)
+        self._key_filename.set(file.name)
+        self._timestamp.set(datetime.now().strftime('%I:%M %p'))
 
-        elif filename == self._primary_key_filename:
-            self.outer_frame.configure(background=self.primary_key_color)
+        color = self._key_info.get_key_color(file.stem)
+
+        if color:
+            self.outer_frame.configure(background=color)
 
         else:
-            self.outer_frame.configure(background=self.secondary_key_color)
+            self.outer_frame.configure(background=self.background_color)
 
 
     def _calc_geometry(self, init=False) -> str:
@@ -186,7 +189,7 @@ class KeyMonitorBanner:
         inner_frame.pack(fill="both", expand=True, padx=15, pady=15)
 
         row = tk.Frame(inner_frame, background=self.background_color)
-        row.pack(padx=(15, 0), fill='x', expand=True)
+        row.pack(padx=(15, 15), fill='x', expand=True)
 
         label = tk.Label(row, text='Key File: ', font=("Arial", 14))
         file_label = tk.Label(
@@ -194,7 +197,9 @@ class KeyMonitorBanner:
             textvariable=self._key_filename,
             font=("Arial", 18, "bold")
         )
+        timestamp = tk.Label(row, textvariable=self._timestamp, font=("Arial", 14))
 
         label.pack(side='left')
         file_label.pack(side='left')
+        timestamp.pack(side='right')
 
