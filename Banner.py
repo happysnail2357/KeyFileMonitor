@@ -35,11 +35,14 @@ class KeyMonitorBanner:
 
         # Colors
         self.background_color = '#F0F0F0'
+        self.primary_color = '#00FF00'
+        self.secondary_color = '#FF0000'
 
         # Build the UI
         self._build_UI()
 
-        self._key_info = KeyInfo()
+        self._primary_key = ''
+
 
 
     def show(self):
@@ -112,11 +115,11 @@ class KeyMonitorBanner:
 
         color = self._key_info.get_key_color(file.stem)
 
-        if color:
-            self.outer_frame.configure(background=color)
+        if file.stem.lower() == self.primary_key.lower():
+            self.outer_frame.configure(background=self.primary_color)
 
         else:
-            self.outer_frame.configure(background=self.background_color)
+            self.outer_frame.configure(background=self.secondary_color)
 
 
     def _calc_geometry(self, init=False) -> str:
