@@ -91,6 +91,8 @@ class WindowWatcher:
     def start(self):
         """Start the window watcher thread."""
 
+        self.running = True
+
         if not self._window_thread or not self._window_thread.is_alive():
 
             self._window_thread = threading.Thread(
@@ -106,6 +108,8 @@ class WindowWatcher:
 
     def stop(self):
         """Stop the window watcher thread."""
+
+        self.running = False
 
         if self._window_event_hook:
             ctypes.windll.user32.UnhookWinEvent(self._window_event_hook)
@@ -220,9 +224,7 @@ class WindowWatcher:
             self.WINEVENT_OUTOFCONTEXT
         )
 
-        self.running = True
         pythoncom.PumpMessages()
-        self.running = False
 
 
     def _dialog_thread_main(self):
