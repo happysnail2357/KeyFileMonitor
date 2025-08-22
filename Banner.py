@@ -274,7 +274,7 @@ class SettingsDialog:
         value (Path): The file to be used as the primary key.
     """
 
-    def __init__(self, parent, title="Settings", default='bob'):
+    def __init__(self, parent, title='Settings', default=''):
         """
         Build and run the dialog.
 
@@ -285,7 +285,7 @@ class SettingsDialog:
 
         self.top = tk.Toplevel(parent)
         self.top.title(title)
-        self.top.geometry('400x150')
+        self.top.geometry(f'400x150+{parent.winfo_x()}+{parent.winfo_y()}')
         self.top.resizable(width=True, height=False)
 
         # Make modal
