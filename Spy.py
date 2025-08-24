@@ -250,7 +250,7 @@ class WindowWatcher:
 
                 break
 
-            sleep(0.1)
+            sleep(0.2)
 
         print('Poll dialog - Stop')
 
