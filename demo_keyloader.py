@@ -21,8 +21,16 @@ def build_window():
     """Contruct the window and UI."""
 
     root = tk.Tk()
-    root.geometry("500x200")
     root.title("Key Loader R8B")
+
+    width = 500
+    height = 200
+    screen_w = root.winfo_screenwidth()
+    screen_h = root.winfo_screenheight()
+    x = (screen_w // 2) - (width // 2)
+    y = (screen_h // 2) - (height // 2)
+
+    root.geometry(f"{width}x{height}+{x}+{y}")
 
     row = tk.Frame(root)
     row.pack(padx=10, pady=10, fill="x", expand=True)

@@ -3,6 +3,8 @@
 import tkinter as tk
 from tkinter import filedialog
 import win32gui
+import win32con
+import ctypes
 from pathlib import Path
 from datetime import datetime
 import appdirs
@@ -21,11 +23,12 @@ class KeyMonitorBanner:
 
         Args:
             attach_to (int): handle to the window this window will "stick" to
-                             (default None).
+                             (default 0).
         """
 
         self.root = tk.Tk()
         self.root.title("Key File Monitor")
+        self.root.geometry('500x125')
 
         # This will update size and position
         self._update_window_handle(attach_to)
@@ -134,42 +137,22 @@ class KeyMonitorBanner:
             self.outer_frame.configure(background=self.secondary_color)
 
 
-    def _calc_geometry(self, init=False) -> str:
-        """
-        Calculate the size and position based on the sibling window.
+    def _move_to_sibling(self):
+        """Set the window position above the sibling window."""
 
-        Args:
-            init (bool): Make adjustments to the window size to account for
-                         window styling. Must be used the first time after
-                         attaching to a window (default False).
+        left, top, right, bottom = win32gui.GetWindowRect(self._attached_hwnd)
 
-        Returns:
-            str.
-        """
+        height = 160
+        new_top = max(top - height, 0)
 
-        window_rect = win32gui.GetWindowRect(self._attached_hwnd)
+        self.root.update_idletasks()
+        hwnd = win32gui.FindWindow(None, 'Key File Monitor')
 
-        left, top, right, bottom = window_rect
-        width = right - left
-
-        if init:
-            client_rect = win32gui.GetClientRect(self._attached_hwnd)
-            left_top = win32gui.ClientToScreen(self._attached_hwnd, (0, 0))
-            right_bottom = win32gui.ClientToScreen(self._attached_hwnd, (client_rect[2], client_rect[3]))
-
-            client_left, client_top = left_top
-            client_right, client_bottom = right_bottom
-            client_width = client_right - client_left
-
-            self._width_diff = width - client_width
-            self._top_diff = client_top - top
-
-            self._init_geometry = False
-
-        calc_width = width - self._width_diff
-        calc_top = max(top - self._top_diff - 125, 0)
-
-        return f'{calc_width}x{125}+{left}+{calc_top}'
+        if hwnd != 0:
+            win32gui.SetWindowPos(
+                hwnd, win32con.HWND_TOP, left, new_top, right - left, height,
+                win32con.SWP_SHOWWINDOW
+            )
 
 
     def _update_window_handle(self, hwnd: int):
@@ -186,12 +169,8 @@ class KeyMonitorBanner:
         self._attached_hwnd = hwnd
 
         if hwnd != 0:
-            geometry_str = self._calc_geometry(init=True)
-            self.root.geometry(geometry_str)
+            self._move_to_sibling()
             self.root.lift()
-
-        else:
-            self.root.geometry('500x125')
 
 
     def _build_UI(self):
