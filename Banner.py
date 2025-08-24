@@ -4,7 +4,6 @@ import tkinter as tk
 from tkinter import filedialog
 import win32gui
 import win32con
-import ctypes
 from pathlib import Path
 from datetime import datetime
 import appdirs
@@ -141,6 +140,12 @@ class KeyMonitorBanner:
         """Set the window position above the sibling window."""
 
         left, top, right, bottom = win32gui.GetWindowRect(self._attached_hwnd)
+
+        if left   < 0 \
+        or top    < 0 \
+        or right  < 0 \
+        or bottom < 0:
+            return
 
         height = 160
         new_top = max(top - height, 0)
