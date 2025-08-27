@@ -126,7 +126,7 @@ class KeyMonitorBanner:
         if isinstance(file, str):
             file = Path(file)
 
-        if not file.stem:
+        if not file.stem or not self._primary_key.stem:
             self.outer_frame.configure(background=self.background_color)
 
         elif file.stem.lower() == self._primary_key.stem.lower():
