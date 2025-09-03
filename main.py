@@ -1,5 +1,7 @@
 """
-Key File Banner for Harris Key Loader R8B.
+Key File Monitor
+
+Displays the key filename selected in the Harris Key Loader R8B application.
 
 Created  8/16/2025 - Paul Puhnaty
 """
@@ -59,6 +61,7 @@ class App:
 
         self.window.attach_to_window(hwnd)
 
+
     def on_keyloader_shutdown(self):
         """Close this app along with the sibling app."""
 
@@ -66,19 +69,22 @@ class App:
 
 
     def on_select_file_startup(self, hwnd):
-        """Monitor the selcted filename when the "Open" dialog appears."""
+        """Do nothing when the "Open" dialog appears."""
 
         pass
+
 
     def on_select_file_edit(self, filename):
         """Edit the buffered filename when the filename changes in the "Open" dialog."""
 
         self.buffered_filename = filename
 
+
     def on_select_file_shutdown(self):
         """Apply the buffered filename when the "Open" dialog closes."""
 
-        self.window.set_file_name(self.buffered_filename)
+        self.window.set_filename(self.buffered_filename)
+
 
 
 if __name__ == "__main__":
